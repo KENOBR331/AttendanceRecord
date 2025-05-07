@@ -1,0 +1,68 @@
+﻿@page
+
+@model AttendanceRecord.Pages.TimeInputModel
+@{
+    Layout = "_Layout";
+}
+<head>
+    <meta charset="UTF-8">
+    <title>出退勤打刻</title>
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<h2>勤務時間入力</h2>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div style="color: green; font-weight: bold;">
+        @Model.Message
+    </div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <table border="0">
+        <tr>
+            <td style="text-align: right;">
+                出勤時間:<input type="time" name="startTime" value="@Model.CurrentTime" @(Model.IsClockedIn ? "disabled" : "") />
+            </td>
+            <td>～</td>
+            <td style="text-align: right;">
+                退勤時間:<input type="time" name="endTime" value="@Model.CurrentTime" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;">
+                休憩開始:<input type="time" name="startRestTime" value="@Model.CurrentTime" />
+                <button type="submit" name="action" value="restStart">休憩開始</button>
+            </td>
+            <td>～</td>
+            <td style="text-align: right;" ">
+                休憩終了:<input type="time" name="endRestTime" value="@Model.CurrentTime" />
+                <button type="submit" name="action" value="restStart">休憩終了</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;</td>
+        </tr>
+        <tr>
+            <td style="text-align: right;">
+                <input type="checkbox" name="isBusinessTrip" value="true" />出張
+                <input type="time" name="startTripTime" value="@Model.CurrentTime" />
+            </td>
+            <td>～</td>
+            <td style="text-align: right;">
+                直帰<input type="checkbox" name="isTripAll" value="true" />
+                <input type="time" name="startTripTime" value="@Model.CurrentTime" />
+            </td>
+        </tr>
+    </table>
+    <br />
+    <button class="big-button" type="submit" name="action" value="clockin">出勤</button>
+
+    <!--余白-->
+    <span style="display:inline-block; width:20px;"></span>
+    <button class="big-button" type="submit" name="action" value="clockout">退勤</button>
+</form>

@@ -1,0 +1,25 @@
+﻿.big-button {
+    font-size: 20px;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+a {
+    color: #007acc; /* 通常の文字色 */
+    text-decoration: none; /* 下線を削除 */
+    transition: all 0.2s ease;
+}
+
+a:hover {
+    color: #ff6600; /* ホバー時の文字色 */
+    font-size: 1.1em; /* 文字サイズを少し大きくする */
+}
+button:hover {
+    font-size: 18px; /* 少し大きくする */
+    background-color: #ad939c; /* 背景色を変更 */
+}
+
+td, th {
+    border-bottom: 1px solid #ccc; /* 各セルの下に線を入れることで見やすく */
+    padding: 8px;
+}
