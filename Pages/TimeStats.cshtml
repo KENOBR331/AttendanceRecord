@@ -1,4 +1,116 @@
 ﻿@page
 @model AttendanceRecord.Pages.TimeStatsModel
+@using Microsoft.AspNetCore.Mvc
 @{
+    ViewData["Title"] = "勤務時間統計";
 }
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="~/css/style.css">
+    <title>出退勤統計</title>
+</head>
+<h1>@ViewData["Title"]</h1>
+
+<style>
+    .chart-container {
+        width: 80vw; /* 画面の80%幅に調整 */
+        max-width: 500px; /* 最大500px */
+        height: auto;
+        margin: 0 auto;
+    }
+
+    #attendanceChart {
+        width: 100%; /* コンテナにフィット */
+        height: auto;
+    }
+
+    .month-link {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px; /* 余白を追加 */
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+        .month-link:hover {
+            background-color: #0056b3;
+        }
+
+    .active-month {
+        background-color: #cccccc !important;
+    }
+
+    .selected {
+        background-color: #ccc !important; /* グレー */
+        pointer-events: none; /* クリック無効（オプション） */
+    }
+</style>
+<div id="monthLinks">
+    @foreach (var item in Model.MonthList)
+    {
+        <a href="@Url.Page("TimeStats", new { year = item.Year, month = item.Month })"
+           class="month-link"
+           data-year="@item.Year"
+           data-month="@item.Month">
+            @item.Month 月
+        </a>
+    }
+</div>
+
+<div class="chart-container">
+    <canvas id="attendanceChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+        // URLからyearとmonthのクエリパラメータを取得
+    window.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const year = params.get("year");
+        const month = params.get("month");
+
+        if (year && month) {
+            document.querySelectorAll('.month-link').forEach(link => {
+                const url = new URL(link.href);
+                if (url.searchParams.get("year") === year && url.searchParams.get("month") === month) {
+                    link.classList.add('selected');
+                }
+            });
+        }
+    });
+    var ctx = document.getElementById('attendanceChart').getContext('2d');
+    var attendanceChart = new Chart(ctx, {
+        type: 'bar',  // 棒グラフに変更
+        data: {
+            labels: ['勤務合計時間', '欠勤合計時間'],  // グラフのラベル
+            datasets: [{
+                label: '勤務・欠勤時間',
+                data: [@Model.AttendanceTotal ?? 0, @Model.AbsenceTotal ?? 0],  // nullの場合は0を設定
+                backgroundColor: [
+                    '#3498db', // 勤務合計時間: 青
+                    '#f39c12'  // 欠勤合計時間: オレンジ
+                ],
+                borderColor: [
+                    '#2980b9', // 勤務合計時間のボーダー色
+                    '#e67e22'  // 欠勤合計時間のボーダー色
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,  // Y軸をゼロから始める
+                    ticks: {
+                        stepSize: 60,  // 1ステップのサイズを60に設定（分単位）
+                        callback: function(value) { return value + ' 分'; }  // Y軸に単位を表示
+                    }
+                }
+            }
+        }
+    });
+</script>
