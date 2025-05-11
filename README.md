@@ -2,7 +2,7 @@
 ※DB=データベース
 ■簡単なC#+SqlServerによるWebシステム
 ・NetCore9.0.203にて作成
-・Postgresqlを使用することで完全にLinux(UNIX系)やクロスプラットフォームでの動作可能
+・SqlServerもいつのまにかLinux（UNIX）に対応していた・・・
 
 ■機能
 ・簡易なものの為、UserIDは固定（ADなど高価なものは使えない）
