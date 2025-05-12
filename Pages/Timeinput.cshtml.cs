@@ -8,7 +8,7 @@ namespace AttendanceRecord.Pages
 {
     public class TimeInputModel : PageModel
     {
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
         private readonly DbCon _db;
         [BindProperty]
         public string StartTime { get; set; }

@@ -15,7 +15,7 @@
 <style>
     .chart-container {
         width: 80vw; /* 画面の80%幅に調整 */
-        max-width: 800px; /* 最大500px */
+        max-width: 800px; /* 最大800px */
         height: auto;
         margin: 0 auto;
     }
@@ -64,7 +64,8 @@
     <canvas id="attendanceChart"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="~/js/chart.umd.js"></script>
+<script src="~/js/chartjs-plugin-datalabels.js"></script>
 <script>
         // URLからyearとmonthのクエリパラメータを取得
     window.addEventListener('DOMContentLoaded', function () {
@@ -85,7 +86,7 @@
     var attendanceChart = new Chart(ctx, {
         type: 'bar',  // 棒グラフに変更
         data: {
-            labels: ['勤務合計時間', '欠勤合計時間'],  // グラフのラベル
+            labels: ['勤務合計時間: ' + (@Model.AttendanceTotal ?? 0).toFixed(1) + '時間', '欠勤合計時間：' + ((@Model.AbsenceTotal ?? 0)).toFixed(1) + '時間'], 
             datasets: [{
                 label: '勤務・欠勤時間',
                 data: [@Model.AttendanceTotal ?? 0, @Model.AbsenceTotal ?? 0],  // nullの場合は0を設定
@@ -106,8 +107,8 @@
                 y: {
                     beginAtZero: true,  // Y軸をゼロから始める
                     ticks: {
-                        stepSize: 60,  // 1ステップのサイズを60に設定（分単位）
-                        callback: function(value) { return value + ' 分'; }  // Y軸に単位を表示
+                        stepSize: 60,  // 1ステップのサイズを60に設定（時間単位）
+                        callback: function(value) { return value + ' 時間'; }  // Y軸に単位を表示
                     }
                 }
             }

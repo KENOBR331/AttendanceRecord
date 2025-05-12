@@ -70,7 +70,7 @@ namespace AttendanceRecord.Data
         /// 出勤時間レコード更新(出勤)
         /// </summary>
         /// <param name="userId">int ユーザID</param>
-        public int UpdateStartTime(int userId,DateTime startTime)
+        public int UpdateStartTime(int userId, DateTime startTime)
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
@@ -87,13 +87,14 @@ namespace AttendanceRecord.Data
                 {
                     //トランザクション開始
                     cmd.Transaction = transaction;
-                    try {
+                    try
+                    {
                         // まず UPDATE を試す
                         cmd.CommandText = @"UPDATE T_kintai
                                 SET start_time = @StartTime
                                 WHERE userid = @UserId AND year = @year AND month = @month AND day = @day ";
-                    
-                        cmd.Parameters.AddWithValue("@StartTime", startTime); 
+
+                        cmd.Parameters.AddWithValue("@StartTime", startTime);
                         cmd.Parameters.AddWithValue("@UserId", userId);
                         cmd.Parameters.AddWithValue("@year", year);
                         cmd.Parameters.AddWithValue("@month", month);
@@ -192,7 +193,7 @@ namespace AttendanceRecord.Data
                             cmd.Parameters.AddWithValue("@month", month);
                             cmd.Parameters.AddWithValue("@day", day);
                             cmd.Parameters.AddWithValue("@end_time", endTime);
-                            
+
                             cmd.ExecuteNonQuery();
                             //コミット
                             transaction.Commit();

@@ -39,12 +39,10 @@ namespace AttendanceRecord.Pages
         private void LoadData(int year, int month)
         {
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
-            string whereClause = "WHERE del_flg = 0 AND year = @year AND month = @month";
 
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-
                 // ▼ 月リストの取得
                 using (var monthCmd = new SqlCommand(@"
                     SELECT DISTINCT year, month 
@@ -64,37 +62,37 @@ namespace AttendanceRecord.Pages
                 }
 
                 // ▼ 勤務時間集計
-                using (var cmd = new SqlCommand($@"
+                string sql = @"
                     SELECT 
-                        userid, 
-                        DATEDIFF(MINUTE, start_time, end_time) - DATEDIFF(MINUTE, rest_start_time, rest_end_time) AS WorkMinutes
+                        SUM(CASE 
+                            WHEN start_time IS NOT NULL AND end_time IS NOT NULL 
+                            THEN DATEDIFF(MINUTE, start_time, end_time)  - ISNULL(DATEDIFF(MINUTE, rest_start_time, rest_end_time), 0)
+                            ELSE 0
+                        END) AS AttendanceTotalMinutes,
+
+                        SUM(CASE 
+                            WHEN start_time IS NULL OR end_time IS NULL 
+                            THEN 8 * 60
+                            ELSE 0
+                        END) AS AbsenceTotalMinutes
                     FROM T_Kintai
-                    {whereClause}", connection))
+                    WHERE del_flg = 0 AND year = @year AND month = @month";
+
+                using (var cmd = new SqlCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@year", year.ToString("0000"));
-                    cmd.Parameters.AddWithValue("@month", month.ToString("00"));
+                    cmd.Parameters.AddWithValue("@year", year);
+                    cmd.Parameters.AddWithValue("@month", month);
 
                     using (var reader = cmd.ExecuteReader())
                     {
-                        double attendanceTotal = 0;
-                        double absenceTotal = 0;
-
-                        while (reader.Read())
+                        if (reader.Read())
                         {
-                            int userId = reader.GetInt32(0);
-                            int workMinutes = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
-
-                            UserIds.Add(userId);
-                            WorkHours.Add(workMinutes / 60.0);
-
-                            attendanceTotal += workMinutes;
-                            if (workMinutes == 0) absenceTotal += 8 * 60;
+                            AttendanceTotal = reader.IsDBNull(0) ? 0 : reader.GetInt32(0) / 60.0;
+                            AbsenceTotal = reader.IsDBNull(1) ? 0 : reader.GetInt32(1) / 60.0;
                         }
-
-                        AttendanceTotal = attendanceTotal / 60.0;
-                        AbsenceTotal = absenceTotal / 60.0;
                     }
                 }
+
             }
         }
     }
