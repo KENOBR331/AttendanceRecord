@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration; // ← これを追加
-using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.Data.SqlClient;
 
 namespace AttendanceRecord.Pages
 {
@@ -23,31 +24,31 @@ namespace AttendanceRecord.Pages
         public double AttendanceTotal { get; set; }
         public double AbsenceTotal { get; set; }
 
-        /// <summary>
-        /// 勤務時間の集計
-        /// </summary>
-        /// <param name="year">int 年</param>
-        /// <param name="month">int 月</param>
-        public void OnGet(int? year, int? month)
+        public IActionResult OnGet(int? year, int? month)
+        {
+            if (!year.HasValue || !month.HasValue)
+            {
+                var now = DateTime.Now;
+                return RedirectToPage("TimeStats", new { year = now.Year, month = now.Month });
+            }
+
+            LoadData(year.Value, month.Value);
+            return Page();
+        }
+
+        private void LoadData(int year, int month)
         {
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
-
-            string whereClause = "WHERE del_flg = 0";
-            if (year.HasValue && month.HasValue)
-            {
-                whereClause += " AND year = @year AND month = @month";
-            }
 
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-
-                // ▼ 年月のリストを取得
+                // ▼ 月リストの取得
                 using (var monthCmd = new SqlCommand(@"
-            SELECT DISTINCT year, month 
-            FROM T_Kintai 
-            WHERE del_flg = 0 
-            ORDER BY year DESC, month DESC", connection))
+                    SELECT DISTINCT year, month 
+                    FROM T_Kintai 
+                    WHERE del_flg = 0 
+                    ORDER BY year DESC, month DESC", connection))
                 {
                     using (var reader = monthCmd.ExecuteReader())
                     {
@@ -59,44 +60,40 @@ namespace AttendanceRecord.Pages
                         }
                     }
                 }
-                
 
-                using (var cmd = new SqlCommand($@"
-            SELECT 
-                userid, 
-                DATEDIFF(MINUTE, start_time, end_time) - DATEDIFF(MINUTE, rest_start_time, rest_end_time) AS WorkMinutes
-            FROM T_Kintai
-            {whereClause}", connection))
+                // ▼ 勤務時間集計
+                string sql = @"
+                    SELECT 
+                        SUM(CASE 
+                            WHEN start_time IS NOT NULL AND end_time IS NOT NULL 
+                            THEN DATEDIFF(MINUTE, start_time, end_time)  - ISNULL(DATEDIFF(MINUTE, rest_start_time, rest_end_time), 0)
+                            ELSE 0
+                        END) AS AttendanceTotalMinutes,
+
+                        SUM(CASE 
+                            WHEN start_time IS NULL OR end_time IS NULL 
+                            THEN 8 * 60
+                            ELSE 0
+                        END) AS AbsenceTotalMinutes
+                    FROM T_Kintai
+                    WHERE del_flg = 0 AND year = @year AND month = @month";
+
+                using (var cmd = new SqlCommand(sql, connection))
                 {
-                    if (year.HasValue && month.HasValue)
-                    {
-                        cmd.Parameters.AddWithValue("@year", year.Value.ToString("0000"));
-                        cmd.Parameters.AddWithValue("@month", month.Value.ToString("00"));
-                    }
+                    cmd.Parameters.AddWithValue("@year", year);
+                    cmd.Parameters.AddWithValue("@month", month);
 
                     using (var reader = cmd.ExecuteReader())
                     {
-                        double attendanceTotal = 0;
-                        double absenceTotal = 0;
-
-                        while (reader.Read())
+                        if (reader.Read())
                         {
-                            int userId = reader.GetInt32(0);
-                            int workMinutes = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
-
-                            UserIds.Add(userId);
-                            WorkHours.Add(workMinutes / 60.0);
-
-                            attendanceTotal += workMinutes;
-                            if (workMinutes == 0) absenceTotal += 8 * 60;
+                            AttendanceTotal = reader.IsDBNull(0) ? 0 : reader.GetInt32(0) / 60.0;
+                            AbsenceTotal = reader.IsDBNull(1) ? 0 : reader.GetInt32(1) / 60.0;
                         }
-
-                        AttendanceTotal = attendanceTotal / 60.0;
-                        AbsenceTotal = absenceTotal / 60.0;
                     }
                 }
+
             }
         }
-
     }
 }
