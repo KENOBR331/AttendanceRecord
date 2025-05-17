@@ -1,15 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using AttendanceRecord.Data;
 using Microsoft.Extensions.Configuration;
 using AttendanceRecord.Models;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using AttendanceRecord.Services;
 
 namespace AttendanceRecord.Pages
 {
     public class TimeInputModel : PageModel
     {
-        //private readonly IConfiguration _configuration;
-        private readonly DbCon _db;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
+        private readonly DataController _dataController;
         [BindProperty]
         public string StartTime { get; set; }
 
@@ -20,81 +24,65 @@ namespace AttendanceRecord.Pages
         public string CurrentTime { get; private set; }
         public bool IsClockedIn { get; set; }
         public bool IsClockedOut { get; set; }
-        
-        public TimeInputModel(DbCon dbCon)
+        public string BaseUrl { get; set; }
+
+        public TimeInputModel(IHttpClientFactory httpClientFactory, IConfiguration configuration, DataController dataController)
         {
-            _db = dbCon ?? throw new ArgumentNullException(nameof(dbCon));  // nullÉ`ÉFÉbÉN
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+            _dataController = dataController;
         }
+
         public void OnGet()
         {
-            //ClockInTime = DateTime.Now;
-            //CurrentTime = DateTime.Now.ToString("HH:mm");
             CurrentTime = DateTime.Now.ToString("HH:mm");
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            //0ÅFìoò^é∏îsÅA1ÅFìoò^ÅiçXêVÅjê¨å˜
-            int dbStat = 0;
+            var client = _httpClientFactory.CreateClient();
+            BaseUrl = _configuration["AppSettings:BaseUrl"];
+            client.BaseAddress = new Uri(BaseUrl);
+
             var action = Request.Form["action"];
-            var startTime = Request.Form["startTime"];
-            var endTime = Request.Form["endTime"];
-            var record = new Models.AttendanceRecord
+            var startTimeStr = Request.Form["startTime"];
+            var endTimeStr = Request.Form["endTime"];
+
+
+
+            if (action == "clockin" && DateTime.TryParse(startTimeStr, out var startTime))
             {
-                StartTime = DateTime.TryParse(Request.Form["startTime"], out var sTime) ? sTime : (DateTime?)null,
-                EndTime = DateTime.TryParse(Request.Form["endTime"], out var eTime) ? eTime : (DateTime?)null,
-                StartRestTime = DateTime.TryParse(Request.Form["startRestTime"], out var srTime) ? srTime : (DateTime?)null,
-                EndRestTime = DateTime.TryParse(Request.Form["endRestTime"], out var erTime) ? erTime : (DateTime?)null,
-                IsBusinessTrip = Request.Form["isBusinessTrip"] == "on",
-                IsTripAll = Request.Form["isTripAll"] == "on"
-            };
-
-            if (!string.IsNullOrEmpty(startTime))
-            {
-                HttpContext.Session.SetString("StartTime", startTime);
-            }
-
-            HttpContext.Session.SetString("StartTime", startTime);
-            HttpContext.Session.SetString("EndTime", endTime);
-
-            if (action == "clockin")
-            {
-
-                //Ç–Ç∆Ç‹Ç∏ÉÜÅ[ÉUIDÇÕ1Ç≈å≈íË
-                dbStat = _db.UpdateStartTime(1, DateTime.Parse(startTime));
-                if (dbStat == 1)
+                int rows = _dataController.UpdateStartTime(1, startTime);
+                if (rows > 0)
                 {
-                    Message = $"èoãŒéûä‘ {startTime} Çìoò^ÇµÇ‹ÇµÇΩÅB";
+                    Message = $"èoãŒéûä‘ {startTimeStr} Çìoò^ÇµÇ‹ÇµÇΩÅB";
+                    IsClockedIn = true;
                 }
                 else
                 {
                     Message = $"èoãŒéûä‘ÇÃìoò^Ç…é∏îsÇ‡ÇµÇ≠ÇÕìoò^çœÇ›Ç≈Ç∑ÅB";
                 }
-                //if (DateTime.TryParse(Request.Form["startTime"], out var sTime)) { 
-                
-
-                IsClockedIn = true;
-                //}
             }
-            else if (action == "clockout")
+            else if (action == "clockout" && DateTime.TryParse(endTimeStr, out var endTime))
             {
-                dbStat = _db.UpdateEndTime(1, DateTime.Parse(endTime));
-                if (dbStat == 1)
+                int rows = _dataController.UpdateEndTime(1, endTime);
+                if (rows > 0)
                 {
-                    Message = $"ëﬁãŒéûä‘ {endTime} Çìoò^ÇµÇ‹ÇµÇΩÅB";
+                    Message = $"ëﬁãŒéûä‘ {endTimeStr} Çìoò^ÇµÇ‹ÇµÇΩÅB";
+                    IsClockedOut = true;
                 }
                 else
                 {
                     Message = $"ëﬁãŒéûä‘ÇÃìoò^Ç…é∏îsÇ‡ÇµÇ≠ÇÕìoò^çœÇ›Ç≈Ç∑ÅB";
                 }
-
-                IsClockedOut = true;
             }
-            CurrentTime = DateTime.Now.ToString("HH:mm");
-            //return RedirectToPage();
-            return Page();
+            else
+            {
+                Message = "éûä‘ÇÃå`éÆÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅB";
+            }
 
+            CurrentTime = DateTime.Now.ToString("HH:mm");
+            return Page();
         }
     }
-
 }
