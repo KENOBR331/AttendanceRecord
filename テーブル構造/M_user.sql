@@ -10,6 +10,6 @@ SELECT
 FROM
     [dbo].[M_user] 
 WHERE
-    [userid] = :userid                          -- ユーザID
+    [userid] = userid                          -- ユーザID
 ORDER BY
     [userid]
