@@ -18,10 +18,20 @@ namespace AttendanceRecord.Pages
             _dataController = dataController;
         }
 
+        //システム年の該当月リスト一覧
         public List<(int Year, int Month)> MonthList { get; set; } = new();
+        //出勤時間合計
         public double AttendanceTotal { get; set; }
+        //欠勤時間合計
         public double AbsenceTotal { get; set; }
 
+        /// <summary>
+        /// 管理者専用ページのため、Getで処理（ページ遷移が面倒という人はURL直入力も考慮）
+        /// ※本来は一般ではアクセスを禁ずる処理を施す
+        /// </summary>
+        /// <param name="year">int 年</param>
+        /// <param name="month">int 月</param>
+        /// <returns>すべてのアクションの戻り値</returns>
         public IActionResult OnGet(int? year, int? month)
         {
             if (!year.HasValue || !month.HasValue)
