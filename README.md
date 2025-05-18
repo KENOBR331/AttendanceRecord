@@ -1,6 +1,6 @@
 
-　基本設計書（勤怠システム）.docx
-URL：https://docs.google.com/document/d/1yB10CbzxU95haYD_N9AlxJbKaK_WmiOE/edit?usp=drive_link&ouid=115538955490581554098&rtpof=true&sd=true　
+　基本設計書（勤怠システム）.docx  
+URL：https://docs.google.com/document/d/1yB10CbzxU95haYD_N9AlxJbKaK_WmiOE/edit?usp=drive_link&ouid=115538955490581554098&rtpof=true&sd=true  
 ※AD=ActiveDirectry  
 ※DB=データベース  
 ■簡単なC#+SqlServerによるWebシステム(サンプル程度です)  
