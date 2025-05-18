@@ -38,9 +38,11 @@ namespace AttendanceRecord.Pages
             CurrentTime = DateTime.Now.ToString("HH:mm");
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnPost()
         {
             var client = _httpClientFactory.CreateClient();
+
+            // BaseUrl‚ðappsettings.json‚©‚çŽæ“¾
             BaseUrl = _configuration["AppSettings:BaseUrl"];
             client.BaseAddress = new Uri(BaseUrl);
 
