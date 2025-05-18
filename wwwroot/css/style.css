@@ -11,12 +11,12 @@ a {
 }
 
 a:hover {
-    color: #ff6600; /* ホバー時の文字色 */
+    color: #ff66FF; /* ホバー時の文字色 */
     font-size: 1.1em; /* 文字サイズを少し大きくする */
 }
 button:hover {
     font-size: 18px; /* 少し大きくする */
-    background-color: #ad939c; /* 背景色を変更 */
+    background-color: #0FF; /* 背景色を変更 */
 }
 
 td, th {
