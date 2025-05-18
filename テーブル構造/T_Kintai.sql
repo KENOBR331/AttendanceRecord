@@ -1,1 +1,87 @@
----------------------------------------------------------------------------------- [dbo].[T_Kintai] ‚ÌƒŒƒCƒAƒEƒg•ÏX--   2025/05/17 ken---------------------------------------------------------------------------------- Vƒe[ƒuƒ‹‚Ìì¬create table [dbo].[$$T_Kintai] (  [userid] int not null  , [year] nchar(4) not null  , [month] nchar(2) not null  , [day] nchar(2) not null  , [start_time] datetime  , [end_time] datetime  , [trip_start_time] datetime  , [trip_end_time] datetime  , [trip_flg] bit default 0  , [all_day] bit default 0  , [rest_start_time] datetime  , [rest_end_time] datetime  , [del_flg] bit default 0)-- Vƒe[ƒuƒ‹‚Öƒf[ƒ^“Š“üinsert into [dbo].[$$T_Kintai]([userid], [year], [month], [day], [start_time], [end_time], [trip_start_time], [trip_end_time], [trip_flg], [all_day], [rest_start_time], [rest_end_time], [del_flg])  select org.[userid], org.[year], org.[month], org.[day], org.[start_time], org.[end_time], org.[trip_start_time], org.[trip_end_time], org.[trip_flg], org.[all_day], org.[rest_start_time], org.[rest_end_time], org.[del_flg] from [dbo].[T_Kintai] org-- Œ³ƒe[ƒuƒ‹‚Ìíœdrop table [dbo].[T_Kintai]-- Vƒe[ƒuƒ‹‚ğƒŠƒl[ƒ€‚µ‚ÄŒ³ƒe[ƒuƒ‹–¼‚É•ÏXEXEC sp_rename '[dbo].[$$T_Kintai]', 'T_Kintai';-- åƒL[‚Ìì¬alter table [dbo].[T_Kintai]  add constraint [PK_T_Kintai] primary key ([userid],[year],[month],[day])-- ƒRƒƒ“ƒg‚Ìì¬EXECUTE sp_addextendedproperty N'MS_Description', N'‹Î‘Óƒe[ƒuƒ‹', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', NULL, NULLEXECUTE sp_addextendedproperty N'MS_Description', N'ƒ†[ƒUID', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'userid'EXECUTE sp_addextendedproperty N'MS_Description', N'”N', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'year'EXECUTE sp_addextendedproperty N'MS_Description', N'Œ', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'month'EXECUTE sp_addextendedproperty N'MS_Description', N'“ú', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'day'EXECUTE sp_addextendedproperty N'MS_Description', N'o‹ÎŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'start_time'EXECUTE sp_addextendedproperty N'MS_Description', N'‘Ş‹ÎŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'end_time'EXECUTE sp_addextendedproperty N'MS_Description', N'o’£ŠJnŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'trip_start_time'EXECUTE sp_addextendedproperty N'MS_Description', N'o’£I—¹ŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'trip_end_time'EXECUTE sp_addextendedproperty N'MS_Description', N'o’£‚Ì‚Æ‚«‚Í1', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'trip_flg'EXECUTE sp_addextendedproperty N'MS_Description', N'’¼‹A‚Ìê‡‚Í1', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'all_day'EXECUTE sp_addextendedproperty N'MS_Description', N'‹xŒeŠJnŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'rest_start_time'EXECUTE sp_addextendedproperty N'MS_Description', N'‹xŒeI—¹ŠÔ(YYYY-MM-DDThh:mm:ss)', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'rest_end_time'EXECUTE sp_addextendedproperty N'MS_Description', N'íœƒtƒ‰ƒO', N'SCHEMA', N'dbo', N'TABLE', N'T_Kintai', N'COLUMN', N'del_flg'
+USE [kintai]  
+GO  
+
+/****** Object:  Table [dbo].[T_Kintai]    Script Date: 2025/05/18 13:30:05 ******/  
+SET ANSI_NULLS ON  
+GO  
+  
+SET QUOTED_IDENTIFIER ON  
+GO  
+  
+CREATE TABLE [dbo].[T_Kintai](  
+	[userid] [int] NOT NULL,  
+	[year] [nchar](4) NOT NULL,  
+	[month] [nchar](2) NOT NULL,  
+	[day] [nchar](2) NOT NULL,  
+	[start_time] [datetime] NULL,  
+	[end_time] [datetime] NULL,  
+	[trip_start_time] [datetime] NULL,  
+	[trip_end_time] [datetime] NULL,  
+	[trip_flg] [bit] NULL,  
+	[all_day] [bit] NULL,  
+	[rest_start_time] [datetime] NULL,  
+	[rest_end_time] [datetime] NULL,  
+	[del_flg] [bit] NULL,  
+ CONSTRAINT [PK_T_Kintai] PRIMARY KEY CLUSTERED   
+(  
+	[userid] ASC,  
+	[year] ASC,  
+	[month] ASC,  
+	[day] ASC  
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]  
+) ON [PRIMARY]  
+GO  
+  
+ALTER TABLE [dbo].[T_Kintai] ADD  CONSTRAINT [DF_T_Kintai_trip_flg]  DEFAULT ((0)) FOR [trip_flg]  
+GO  
+  
+ALTER TABLE [dbo].[T_Kintai] ADD  CONSTRAINT [DF_T_Kintai_all_day]  DEFAULT ((0)) FOR [all_day]  
+GO  
+
+ALTER TABLE [dbo].[T_Kintai] ADD  CONSTRAINT [DF_T_Kintai_del_flg]  DEFAULT ((0)) FOR [del_flg]  
+GO  
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ãƒ¦ãƒ¼ã‚¶ID' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'userid'  
+GO  
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å¹´' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'year'  
+GO  
+
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'æœˆ(0è©°ã‚ã§æ ¼ç´)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'month'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'æ—¥(0è©°ã‚ã§æ ¼ç´)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'day'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‡ºå‹¤æ™‚é–“(YYYY-MM-DDThh:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'start_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'é€€å‹¤æ™‚é–“(yyyy-MM-dd HH:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'end_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‡ºå¼µé–‹å§‹æ™‚é–“(yyyy-MM-dd HH:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'trip_start_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‡ºå¼µçµ‚äº†æ™‚é–“(yyyy-MM-dd HH:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'trip_end_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‡ºå¼µã®ã¨ãã¯1' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'trip_flg'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ç›´å¸°ã®å ´åˆã¯1' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'all_day'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ä¼‘æ†©é–‹å§‹æ™‚é–“(yyyy-MM-dd HH:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'rest_start_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'ä¼‘æ†©çµ‚äº†æ™‚é–“(yyyy-MM-dd HH:mm:ss)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'rest_end_time'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‰Šé™¤ãƒ•ãƒ©ã‚°(1ã§è«–ç†å‰Šé™¤)' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai', @level2type=N'COLUMN',@level2name=N'del_flg'  
+GO  
+  
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'å‹¤æ€ ãƒ†ãƒ¼ãƒ–ãƒ«' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'T_Kintai'  
+GO  
+  
+  
+  
