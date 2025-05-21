@@ -55,8 +55,14 @@ namespace AttendanceRecord.Pages
             if (action == "clockin" && DateTime.TryParse(startTimeStr, out var startTime))
             {
                 int rows = _dataController.UpdateStartTime(1, startTime);
-                if (rows > 0)
+                if (rows == 2)
+                    
                 {
+                    Message = $"o‹ÎŠÔ‚Í‚·‚Å‚É“o˜^Ï‚İ‚Å‚·B";
+                }
+                else if(rows > 0)
+                {
+
                     Message = $"o‹ÎŠÔ {startTimeStr} ‚ğ“o˜^‚µ‚Ü‚µ‚½B";
                     IsClockedIn = true;
                 }

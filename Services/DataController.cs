@@ -1,6 +1,11 @@
-﻿using AttendanceRecord.Data;
+﻿//最近Tabでコメントすら補完してくれるのがありがたいのか、練習にもならん・・・
+//だいぶWebアプリ思い出してきた
+//ゲーム用にコンソールアプリばっかり作ってたのがつらい
+using AttendanceRecord.Data;
 using AttendanceRecord.Models;
+//using Microsoft.Data.SqlClient;//使わないや
 using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace AttendanceRecord.Services
@@ -13,19 +18,57 @@ namespace AttendanceRecord.Services
         {
             _dbConnect = dbConnect;
         }
+
+
+        /// <summary>
+        /// 出勤時間を更新
+        /// </summary>
+        /// <param name="userId">ユーザID(1固定)</param>
+        /// <param name="startTime">勤務開始時間</param>
+        /// <returns>
+        /// ※現在改変中2023/05/20
+        /// 0:エラー 
+        /// 1:更新または新規登録（更新はなくす予定）
+        /// 2:既に登録済み(現在導入中)
+        /// </returns>
         public int UpdateStartTime(int userId, DateTime startTime)
         {
+            //コネクション取得
             using var conn = _dbConnect.GetConnection();
+            //ここでコネクションを開く
             conn.Open();
+            //トランザクション開始
             var tran = conn.BeginTransaction();
 
+            //コマンド用オブジェクト作成
             using var cmd = conn.CreateCommand();
             cmd.Transaction = tran;
 
+            var now = DateTime.Now;
+            //※ここでSELECTを実行し、登録済みか否かを判別する。
+            
+            cmd.CommandText = @"SELECT COUNT(*) AS RESULT FROM T_kintai
+                                    WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
+
+
+            DataTable dt = new DataTable();
+            //SqlCommand sqlcmd = new SqlCommand(cmd.CommandText, conn);
+            cmd.Parameters.AddWithValue("@UserId", userId);
+            cmd.Parameters.AddWithValue("@Year", now.Year);
+            cmd.Parameters.AddWithValue("@Month",  now.Month.ToString().PadLeft(2,'0'));
+            cmd.Parameters.AddWithValue("@Day", now.Month.ToString().PadLeft(2, '0'));
+            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+            //SELECTの実行結果をDataTableに格納
+            adapter.Fill(dt);
+            //int型にキャストして、結果を取得する
+            if ((int)dt.Rows[0]["RESULT"] > 0)
+            {
+                return 2;//すでにデータが登録済みの場合は2を返す(登録済みと表示するため)
+            }
+            //念の為コマンドパラメタクリア
+            cmd.Parameters.Clear();
             try
             {
-                var now = DateTime.Now;
-
                 cmd.CommandText = @"UPDATE T_kintai
                                     SET start_time = @StartTime
                                     WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
@@ -37,9 +80,10 @@ namespace AttendanceRecord.Services
                 cmd.Parameters.AddWithValue("@Day", now.Day);
 
                 int rows = cmd.ExecuteNonQuery();
-
-                if (rows == 0)
-                {
+                //ここではコマンドパラメタをクリアしない
+                //（UPDATEで使われているパラメタをINSERTに流用）
+                if (rows == 0) { 
+                    
                     cmd.CommandText = @"INSERT INTO T_kintai (userid, year, month, day, start_time)
                                         VALUES (@UserId, @Year, @Month, @Day, @StartTime)";
                     rows = cmd.ExecuteNonQuery();
@@ -81,6 +125,8 @@ namespace AttendanceRecord.Services
 
                 int rows = cmd.ExecuteNonQuery();
 
+                //ここではコマンドパラメタをクリアしない
+                //（UPDATEで使われているパラメタをINSERTに流用）
                 if (rows == 0)
                 {
                     cmd.CommandText = @"INSERT INTO T_kintai (userid, year, month, day, end_time)

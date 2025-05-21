@@ -5,6 +5,7 @@ using AttendanceRecord.Services;
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace AttendanceRecord.Pages
 {
@@ -45,6 +46,8 @@ namespace AttendanceRecord.Pages
             MonthList = result.MonthList;
             AttendanceTotal = result.AttendanceTotal;
             AbsenceTotal = result.AbsenceTotal;
+            
+            
 
             return Page();
         }
