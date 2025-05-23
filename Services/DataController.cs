@@ -8,8 +8,12 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 
+
 namespace AttendanceRecord.Services
 {
+    /// <summary>
+    /// 各種データ操作
+    /// </summary>
     public class DataController
     {
         private readonly DbConnect _dbConnect;
