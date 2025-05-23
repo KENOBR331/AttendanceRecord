@@ -74,7 +74,12 @@ namespace AttendanceRecord.Pages
             else if (action == "clockout" && DateTime.TryParse(endTimeStr, out var endTime))
             {
                 int rows = _dataController.UpdateEndTime(1, endTime);
-                if (rows > 0)
+                if (rows == 2)
+
+                {
+                    Message = $"‘Ş‹ÎŠÔ‚Í‚·‚Å‚É“o˜^Ï‚İ‚Å‚·B";
+                }
+                else if (rows > 0)
                 {
                     Message = $"‘Ş‹ÎŠÔ {endTimeStr} ‚ğ“o˜^‚µ‚Ü‚µ‚½B";
                     IsClockedOut = true;

@@ -110,12 +110,35 @@ namespace AttendanceRecord.Services
             conn.Open(); 
             var tran = conn.BeginTransaction();
 
+            DateTime now = DateTime.Now;
+            //コマンド用オブジェクト作成
             using var cmd = conn.CreateCommand();
+            cmd.Transaction = tran;
+
+            //※ここでSELECTを実行し、登録済みか否かを判別する。
+
+            cmd.CommandText = @"SELECT COUNT(*) AS RESULT FROM T_kintai
+                                    WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
+
+
+            DataTable dt = new DataTable();
+            //SqlCommand sqlcmd = new SqlCommand(cmd.CommandText, conn);
+            cmd.Parameters.AddWithValue("@UserId", userId);
+            cmd.Parameters.AddWithValue("@Year", now.Year);
+            cmd.Parameters.AddWithValue("@Month", now.Month.ToString().PadLeft(2, '0'));
+            cmd.Parameters.AddWithValue("@Day", now.Month.ToString().PadLeft(2, '0'));
+            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+            //SELECTの実行結果をDataTableに格納
+            adapter.Fill(dt);
+            //int型にキャストして、結果を取得する
+            if ((int)dt.Rows[0]["RESULT"] > 0)
+            {
+                return 2;//すでにデータが登録済みの場合は2を返す(登録済みと表示するため)
+            }
             cmd.Transaction = tran;
 
             try
             {
-                var now = DateTime.Now;
 
                 cmd.CommandText = @"UPDATE T_kintai
                             SET end_time = @EndTime
