@@ -69,10 +69,12 @@ namespace AttendanceRecord.Services
             {
                 return 2;//すでにデータが登録済みの場合は2を返す(登録済みと表示するため)
             }
+            int rows = 0;
             //念の為コマンドパラメタクリア
             cmd.Parameters.Clear();
             try
             {
+                
                 cmd.CommandText = @"UPDATE T_kintai
                                     SET start_time = @StartTime
                                     WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
@@ -80,10 +82,10 @@ namespace AttendanceRecord.Services
                 cmd.Parameters.AddWithValue("@StartTime", startTime);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 cmd.Parameters.AddWithValue("@Year", now.Year);
-                cmd.Parameters.AddWithValue("@Month", now.Month);
-                cmd.Parameters.AddWithValue("@Day", now.Day);
+                cmd.Parameters.AddWithValue("@Month", now.Month.ToString().PadLeft(2, '0'));
+                cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
 
-                int rows = cmd.ExecuteNonQuery();
+                rows = cmd.ExecuteNonQuery();
                 //ここではコマンドパラメタをクリアしない
                 //（UPDATEで使われているパラメタをINSERTに流用）
                 if (rows == 0) { 
@@ -149,7 +151,6 @@ namespace AttendanceRecord.Services
 
             try
             {
-
                 cmd.CommandText = @"UPDATE T_kintai
                             SET end_time = @EndTime
                             WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
@@ -157,8 +158,8 @@ namespace AttendanceRecord.Services
                 cmd.Parameters.AddWithValue("@EndTime", endTime);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 cmd.Parameters.AddWithValue("@Year", now.Year);
-                cmd.Parameters.AddWithValue("@Month", now.Month);
-                cmd.Parameters.AddWithValue("@Day", now.Day);
+                cmd.Parameters.AddWithValue("@Month", now.Month.ToString().PadLeft(2, '0'));
+                cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
 
                 int rows = cmd.ExecuteNonQuery();
 
