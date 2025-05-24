@@ -53,12 +53,12 @@ namespace AttendanceRecord.Services
         /// <param name="userId">ユーザID(1固定)</param>
         /// <param name="startTime">勤務開始時間</param>
         /// <returns>
-        /// ※現在改変中2023/05/20
         /// 0:エラー 
         /// 1:更新または新規登録（更新はなくす予定）
         /// 2:既に登録済み
         /// </returns>
-        public int UpdateStartTime(int userId, DateTime startTime)
+        [Obsolete]
+         public int UpdateStartTime(int userId, DateTime startTime)
         {
             //コネクション取得
             using SqlConnection conn = _dbConnect.GetConnection();
@@ -84,6 +84,7 @@ namespace AttendanceRecord.Services
             cmd.Parameters.AddWithValue("@Year", now.Year);
             cmd.Parameters.AddWithValue("@Month",  now.Month.ToString().PadLeft(2,'0'));
             cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
+
             SqlDataAdapter adapter = new SqlDataAdapter(cmd);
             //SELECTの実行結果をDataTableに格納
             adapter.Fill(dt);
@@ -277,7 +278,5 @@ namespace AttendanceRecord.Services
 
             return (monthList, attendanceTotal, absenceTotal);
         }
-
-
     }
 }
