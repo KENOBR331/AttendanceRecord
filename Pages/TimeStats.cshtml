@@ -48,7 +48,7 @@
     }
 </style>
 <div id="monthLinks">
-    @foreach (var item in Model.MonthList)
+    @foreach ((int Year,int Month) item in Model.MonthList)
     {
         <a href='@Url.Page("TimeStats", new { year = item.Year, month = item.Month })'
            class="month-link"

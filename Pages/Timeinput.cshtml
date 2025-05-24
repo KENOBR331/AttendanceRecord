@@ -29,7 +29,7 @@
             </td>
             <td>～</td>
             <td style="text-align: right;">
-                退勤時間:<input type="time" name="endTime" value="@Model.CurrentTime" />
+                退勤時間:<input type="time" name="endTime" value="@Model.CurrentTime" @(Model.IsClockedOut ? "readonly" : "") />
             </td>
         </tr>
         <tr>

@@ -33,25 +33,25 @@ namespace AttendanceRecord.Services
         /// ※現在改変中2023/05/20
         /// 0:エラー 
         /// 1:更新または新規登録（更新はなくす予定）
-        /// 2:既に登録済み(現在導入中)
+        /// 2:既に登録済み
         /// </returns>
         public int UpdateStartTime(int userId, DateTime startTime)
         {
             //コネクション取得
-            using var conn = _dbConnect.GetConnection();
+            using SqlConnection conn = _dbConnect.GetConnection();
             //ここでコネクションを開く
             conn.Open();
             //トランザクション開始
-            var tran = conn.BeginTransaction();
+            SqlTransaction tran = conn.BeginTransaction();
 
             //コマンド用オブジェクト作成
-            using var cmd = conn.CreateCommand();
+            using SqlCommand cmd = conn.CreateCommand();
             cmd.Transaction = tran;
 
-            var now = DateTime.Now;
+            DateTime now = DateTime.Now;
             //※ここでSELECTを実行し、登録済みか否かを判別する。
             
-            cmd.CommandText = @"SELECT COUNT(*) AS RESULT FROM T_kintai
+            cmd.CommandText = @"SELECT COUNT(start_time) AS RESULT FROM T_kintai
                                     WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
 
 
@@ -60,7 +60,7 @@ namespace AttendanceRecord.Services
             cmd.Parameters.AddWithValue("@UserId", userId);
             cmd.Parameters.AddWithValue("@Year", now.Year);
             cmd.Parameters.AddWithValue("@Month",  now.Month.ToString().PadLeft(2,'0'));
-            cmd.Parameters.AddWithValue("@Day", now.Month.ToString().PadLeft(2, '0'));
+            cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
             SqlDataAdapter adapter = new SqlDataAdapter(cmd);
             //SELECTの実行結果をDataTableに格納
             adapter.Fill(dt);
@@ -104,20 +104,30 @@ namespace AttendanceRecord.Services
             }
         }
 
+        /// <summary>
+        /// 退勤時間を登録
+        /// </summary>
+        /// <param name="userId">ユーザID</param>
+        /// <param name="endTime">退勤時間</param>
+        /// <returns>
+        /// 0:エラー 
+        /// 1:更新または新規登録（更新はなくす予定）
+        /// 2:既に登録済み
+        /// </returns>
         public int UpdateEndTime(int userId, DateTime endTime)
         {
-            using var conn = _dbConnect.GetConnection();
+            using SqlConnection conn = _dbConnect.GetConnection();
             conn.Open(); 
-            var tran = conn.BeginTransaction();
+            SqlTransaction tran = conn.BeginTransaction();
 
             DateTime now = DateTime.Now;
             //コマンド用オブジェクト作成
-            using var cmd = conn.CreateCommand();
+            using SqlCommand cmd = conn.CreateCommand();
             cmd.Transaction = tran;
 
             //※ここでSELECTを実行し、登録済みか否かを判別する。
 
-            cmd.CommandText = @"SELECT COUNT(*) AS RESULT FROM T_kintai
+            cmd.CommandText = @"SELECT COUNT(end_time) AS RESULT FROM T_kintai
                                     WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
 
 
@@ -172,25 +182,32 @@ namespace AttendanceRecord.Services
             }
         }
 
+        /// <summary>
+        /// 月ごとの勤務時間を取得
+        /// </summary>
+        /// <param name="year">年</param>
+        /// <param name="month">月</param>
+        /// <returns>月ごとの合計勤務、欠勤時間
+        /// yearを入れているのはその年の月を絞るため</returns>
         public (List<(int Year, int Month)> MonthList, double AttendanceTotal, double AbsenceTotal) GetMonthlyStats(int year, int month)
         {
-            var monthList = new List<(int Year, int Month)>();
+            List<(int Year, int Month)> monthList = new List<(int Year, int Month)>();
             double attendanceTotal = 0;
             double absenceTotal = 0;
 
-            using var conn = _dbConnect.GetConnection();
+            using SqlConnection conn = _dbConnect.GetConnection();
             conn.Open();
 
             // 月リストの取得
-            using (var monthCmd = new SqlCommand(@"
-      SELECT DISTINCT 
-            year, 
-           RIGHT('00' + CAST(CAST(LTRIM(RTRIM(month)) AS INT) AS VARCHAR(2)), 2) AS month
-        FROM T_Kintai
-        WHERE del_flg = 0 AND month IS NOT NULL
-        ORDER BY year DESC, RIGHT('00' + CAST(CAST(LTRIM(RTRIM(month)) AS INT) AS VARCHAR(2)), 2)  DESC;", conn))
+            using (SqlCommand monthCmd = new SqlCommand(@"
+              SELECT DISTINCT 
+                    year, 
+                   RIGHT('00' + CAST(CAST(LTRIM(RTRIM(month)) AS INT) AS VARCHAR(2)), 2) AS month
+                FROM T_Kintai
+                WHERE del_flg = 0 AND month IS NOT NULL
+                ORDER BY year DESC, RIGHT('00' + CAST(CAST(LTRIM(RTRIM(month)) AS INT) AS VARCHAR(2)), 2)  DESC;", conn))
                     {
-                using (var reader = monthCmd.ExecuteReader())
+                using (SqlDataReader reader = monthCmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -203,27 +220,27 @@ namespace AttendanceRecord.Services
 
             // 勤務時間集計
             string sql = @"
-        SELECT 
-            SUM(CASE 
-                WHEN start_time IS NOT NULL AND end_time IS NOT NULL 
-                THEN DATEDIFF(MINUTE, start_time, end_time)  - ISNULL(DATEDIFF(MINUTE, rest_start_time, rest_end_time), 0)
-                ELSE 0
-            END) AS AttendanceTotalMinutes,
+                    SELECT 
+                        SUM(CASE 
+                            WHEN start_time IS NOT NULL AND end_time IS NOT NULL 
+                            THEN DATEDIFF(MINUTE, start_time, end_time)  - ISNULL(DATEDIFF(MINUTE, rest_start_time, rest_end_time), 0)
+                            ELSE 0
+                        END) AS AttendanceTotalMinutes,
 
-            SUM(CASE 
-                WHEN start_time IS NULL OR end_time IS NULL 
-                THEN 8 * 60
-                ELSE 0
-            END) AS AbsenceTotalMinutes
-        FROM T_Kintai
-        WHERE del_flg = 0 AND year = @year AND month = @month";
+                        SUM(CASE 
+                            WHEN start_time IS NULL OR end_time IS NULL 
+                            THEN 8 * 60
+                            ELSE 0
+                        END) AS AbsenceTotalMinutes
+                    FROM T_Kintai
+                    WHERE del_flg = 0 AND year = @year AND month = @month";
 
-            using (var cmd = new SqlCommand(sql, conn))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
             {
                 cmd.Parameters.AddWithValue("@year", year);
                 cmd.Parameters.AddWithValue("@month", month);
 
-                using (var reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {

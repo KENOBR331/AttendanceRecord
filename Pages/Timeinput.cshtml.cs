@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AttendanceRecord.Services;
+using Microsoft.Extensions.Primitives;
 
 namespace AttendanceRecord.Pages
 {
@@ -40,20 +41,20 @@ namespace AttendanceRecord.Pages
 
         public IActionResult OnPost()
         {
-            var client = _httpClientFactory.CreateClient();
+            HttpClient client = _httpClientFactory.CreateClient();
 
             // BaseUrl‚ğappsettings.json‚©‚çæ“¾
             BaseUrl = _configuration["AppSettings:BaseUrl"];
             client.BaseAddress = new Uri(BaseUrl);
             //ƒ†[ƒUID‚ğŒÅ’è‰»
             int userID = 1;
-            var action = Request.Form["action"];
-            var startTimeStr = Request.Form["startTime"];
-            var endTimeStr = Request.Form["endTime"];
+            StringValues action = Request.Form["action"];
+            string startTimeStr = Request.Form["startTime"];
+            string endTimeStr = Request.Form["endTime"];
 
 
 
-            if (action == "clockin" && DateTime.TryParse(startTimeStr, out var startTime))
+            if (action == "clockin" && DateTime.TryParse(startTimeStr, out DateTime startTime))
             {
                 int rows = _dataController.UpdateStartTime(userID, startTime);
                 if (rows == 2)
@@ -74,13 +75,14 @@ namespace AttendanceRecord.Pages
                     IsClockedIn = true;
                 }
             }
-            else if (action == "clockout" && DateTime.TryParse(endTimeStr, out var endTime))
+            else if (action == "clockout" && DateTime.TryParse(endTimeStr, out DateTime endTime))
             {
                 int rows = _dataController.UpdateEndTime(userID, endTime);
                 if (rows == 2)
 
                 {
                     Message = $"‘Ş‹ÎŠÔ‚Í‚·‚Å‚É“o˜^Ï‚İ‚Å‚·B";
+                    IsClockedOut = true;
                 }
                 else if (rows > 0)
                 {
@@ -90,6 +92,7 @@ namespace AttendanceRecord.Pages
                 else
                 {
                     Message = $"‘Ş‹ÎŠÔ‚Ì“o˜^‚É¸”s‚à‚µ‚­‚Í“o˜^Ï‚İ‚Å‚·B";
+                    IsClockedOut = true;
                 }
             }
             else

@@ -37,12 +37,12 @@ namespace AttendanceRecord.Pages
         {
             if (!year.HasValue || !month.HasValue)
             {
-                var now = DateTime.Now;
+                DateTime now = DateTime.Now;
                 return RedirectToPage("TimeStats", new { year = now.Year, month = now.Month });
             }
 
             // –ß‚è’l‚ðŽó‚¯Žæ‚é
-            var result = _dataController.GetMonthlyStats(year.Value, month.Value);
+            (List<(int Year, int Month)> MonthList, double AttendanceTotal, double AbsenceTotal) result = _dataController.GetMonthlyStats(year.Value, month.Value);
             MonthList = result.MonthList;
             AttendanceTotal = result.AttendanceTotal;
             AbsenceTotal = result.AbsenceTotal;
