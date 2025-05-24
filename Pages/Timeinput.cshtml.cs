@@ -45,7 +45,8 @@ namespace AttendanceRecord.Pages
             // BaseUrlÇappsettings.jsonÇ©ÇÁéÊìæ
             BaseUrl = _configuration["AppSettings:BaseUrl"];
             client.BaseAddress = new Uri(BaseUrl);
-
+            //ÉÜÅ[ÉUIDÇå≈íËâª
+            int userID = 1;
             var action = Request.Form["action"];
             var startTimeStr = Request.Form["startTime"];
             var endTimeStr = Request.Form["endTime"];
@@ -54,11 +55,12 @@ namespace AttendanceRecord.Pages
 
             if (action == "clockin" && DateTime.TryParse(startTimeStr, out var startTime))
             {
-                int rows = _dataController.UpdateStartTime(1, startTime);
+                int rows = _dataController.UpdateStartTime(userID, startTime);
                 if (rows == 2)
                     
                 {
                     Message = $"èoãŒéûä‘ÇÕÇ∑Ç≈Ç…ìoò^çœÇ›Ç≈Ç∑ÅB";
+                    IsClockedIn = true;
                 }
                 else if(rows > 0)
                 {
@@ -69,11 +71,12 @@ namespace AttendanceRecord.Pages
                 else
                 {
                     Message = $"èoãŒéûä‘ÇÃìoò^Ç…é∏îsÇ‡ÇµÇ≠ÇÕìoò^çœÇ›Ç≈Ç∑ÅB";
+                    IsClockedIn = true;
                 }
             }
             else if (action == "clockout" && DateTime.TryParse(endTimeStr, out var endTime))
             {
-                int rows = _dataController.UpdateEndTime(1, endTime);
+                int rows = _dataController.UpdateEndTime(userID, endTime);
                 if (rows == 2)
 
                 {
