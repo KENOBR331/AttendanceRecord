@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AttendanceRecord.Services;
 using Microsoft.Extensions.Primitives;
+using System.Data;
 
 namespace AttendanceRecord.Pages
 {
@@ -37,6 +38,29 @@ namespace AttendanceRecord.Pages
         public void OnGet()
         {
             CurrentTime = DateTime.Now.ToString("HH:mm");
+            int userID = 1;
+            DataTable dt = new DataTable();
+            dt = _dataController.initTimeInput(userID);
+            if (dt.Rows.Count > 0)
+            {
+                StartTime = dt.Rows[0]["start_time"].ToString();
+                EndTime = dt.Rows[0]["end_time"].ToString();
+                if (StartTime != "")
+                {
+                    IsClockedIn = true;
+                }
+                if (EndTime != "")
+                {
+                    IsClockedOut = true;
+                }
+            }
+            else
+            {
+                StartTime = "";
+                EndTime = "";
+                IsClockedIn = false;
+                IsClockedOut = false;
+            }
         }
 
         public IActionResult OnPost()

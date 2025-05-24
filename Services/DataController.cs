@@ -23,6 +23,29 @@ namespace AttendanceRecord.Services
             _dbConnect = dbConnect;
         }
 
+        /// <summary>
+        /// 勤務時間が既に登録されている場合は初期表示時に取得する
+        /// </summary>
+        /// <returns></returns>
+        public DataTable initTimeInput(int userId)
+        {
+            //コネクション取得
+            using SqlConnection conn = _dbConnect.GetConnection();
+            //ここでコネクションを開く
+            conn.Open();
+            DateTime now = DateTime.Now;
+            //コマンド用オブジェクト作成
+            using SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT start_time,end_time FROM T_kintai WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day ";
+            DataTable dt = new DataTable();
+            cmd.Parameters.AddWithValue("@UserId", userId);
+            cmd.Parameters.AddWithValue("@Year", now.Year);
+            cmd.Parameters.AddWithValue("@Month", now.Month.ToString().PadLeft(2, '0'));
+            cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
+            SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+            adapter.Fill(dt);
+            return dt;
+        }
 
         /// <summary>
         /// 出勤時間を更新
@@ -138,7 +161,7 @@ namespace AttendanceRecord.Services
             cmd.Parameters.AddWithValue("@UserId", userId);
             cmd.Parameters.AddWithValue("@Year", now.Year);
             cmd.Parameters.AddWithValue("@Month", now.Month.ToString().PadLeft(2, '0'));
-            cmd.Parameters.AddWithValue("@Day", now.Month.ToString().PadLeft(2, '0'));
+            cmd.Parameters.AddWithValue("@Day", now.Day.ToString().PadLeft(2, '0'));
             SqlDataAdapter adapter = new SqlDataAdapter(cmd);
             //SELECTの実行結果をDataTableに格納
             adapter.Fill(dt);
@@ -149,6 +172,7 @@ namespace AttendanceRecord.Services
             }
             cmd.Transaction = tran;
 
+            cmd.Parameters.Clear();
             try
             {
                 cmd.CommandText = @"UPDATE T_kintai
