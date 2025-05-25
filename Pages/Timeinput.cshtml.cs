@@ -38,6 +38,7 @@ namespace AttendanceRecord.Pages
         public void OnGet()
         {
             CurrentTime = DateTime.Now.ToString("HH:mm");
+            //ƒ†[ƒUID
             int userID = 1;
             DataTable dt = new DataTable();
             dt = _dataController.initTimeInput(userID);
@@ -125,6 +126,21 @@ namespace AttendanceRecord.Pages
             }
 
             CurrentTime = DateTime.Now.ToString("HH:mm");
+            DataTable dt = new DataTable();
+            dt = _dataController.initTimeInput(userID);
+            if (dt.Rows.Count > 0)
+            {
+                StartTime = dt.Rows[0]["start_time"].ToString();
+                EndTime = dt.Rows[0]["end_time"].ToString();
+                if (StartTime != "")
+                {
+                    IsClockedIn = true;
+                }
+                if (EndTime != "")
+                {
+                    IsClockedOut = true;
+                }
+            }
             return Page();
         }
     }

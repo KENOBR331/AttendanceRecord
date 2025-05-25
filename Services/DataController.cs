@@ -1,6 +1,7 @@
 ﻿//最近Tabでコメントすら補完してくれるのがありがたいのか、練習にもならん・・・
 //だいぶWebアプリ思い出してきた
 //ゲーム用にコンソールアプリばっかり作ってたのがつらい
+//ここに新規メソッドをいれてSQLを分割か？
 using AttendanceRecord.Data;
 using AttendanceRecord.Models;
 //using Microsoft.Data.SqlClient;//使わないや
@@ -277,6 +278,35 @@ namespace AttendanceRecord.Services
             }
 
             return (monthList, attendanceTotal, absenceTotal);
+        }
+
+
+        /// <summary>
+        /// 重複しているSQLをナンバリングで取得する
+        /// </summary>
+        /// <param name="sqlPattern">int 返すSQLのパターンを数値で受け取る</param>
+        /// <returns>必要なSQLをここでまとめておく
+        /// </returns>
+        private SqlCommand getSqlCommand(int sqlPattern)
+        {
+            int userId = 1; //仮のユーザID
+            DateTime now = DateTime.Now;
+            SqlCommand cmd = new SqlCommand();
+            switch (sqlPattern)
+            {
+                case 1:
+                    cmd.CommandText = @"SELECT start_time,end_time FROM T_kintai WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
+                    break;
+                case 2:
+                    cmd.CommandText = @"UPDATE T_kintai SET start_time = @StartTime WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
+                    break;
+                case 3:
+                    cmd.CommandText = @"UPDATE T_kintai SET end_time = @EndTime WHERE userid = @UserId AND year = @Year AND month = @Month AND day = @Day";
+                    break;
+                default:
+                    throw new ArgumentException("Invalid SQL pattern");
+            }
+            return cmd;
         }
     }
 }
