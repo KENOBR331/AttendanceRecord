@@ -23,7 +23,10 @@ namespace AttendanceRecord.Pages
         public string EndTime { get; set; }
 
         public string Message { get; set; }
+
+        //ここの時間をデータがあるときはそちらの値に変更する(StartとEndに分けること)
         public string CurrentTime { get; private set; }
+        
         public bool IsClockedIn { get; set; }
         public bool IsClockedOut { get; set; }
         public string BaseUrl { get; set; }
@@ -125,7 +128,8 @@ namespace AttendanceRecord.Pages
                 Message = "時間の形式が正しくありません。";
             }
 
-            CurrentTime = DateTime.Now.ToString("HH:mm");
+            //ちょっとここに書くのもなんだけど、どうしたものか(post後のチェックでデータが存在すればreadonlyとする)
+            //もっと簡易化出来るはず
             DataTable dt = new DataTable();
             dt = _dataController.initTimeInput(userID);
             if (dt.Rows.Count > 0)

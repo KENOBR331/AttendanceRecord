@@ -289,8 +289,6 @@ namespace AttendanceRecord.Services
         /// </returns>
         private SqlCommand getSqlCommand(int sqlPattern)
         {
-            int userId = 1; //仮のユーザID
-            DateTime now = DateTime.Now;
             SqlCommand cmd = new SqlCommand();
             switch (sqlPattern)
             {
